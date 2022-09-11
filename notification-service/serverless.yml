@@ -7,11 +7,44 @@ provider:
   name: aws
   runtime: python3.8
   lambdaHashingVersion: '20201221'
+  stage: ${opt:stage, 'dev'}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action: "dynamodb:*"
+      Resource: "*"
+    - Effect: "Allow"
+      Action: "sns:*"
+      Resource: "*"
+  environment:
+    SNS_TOPIC_ARN: { "Fn::Join" : ["", ["arn:aws:sns:${self:custom.region}:${self:custom.accountId}:${self:custom.alertDispatchTopic}" ] ]  }
 
 functions:
-  hello:
-    handler: handler.hello
+  sendEmailNotification:
+    handler: handlers/send_email_notification.handler
     events:
       - http:
-          path: /
-          method: get
+          path: /users/{user_id}/notifications
+          method: post
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  region: ${opt:region, self:provider.region}
+  alertDispatchTopic: "${self:service}-alert-dispatch-${self:custom.stage}"
+  accountId: ${opt:accountId, ''}
+
+resources:
+  Resources:
+    ManualApprovalSnsTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${self:custom.alertDispatchTopic}
+
+    ManualApprovalSnsTopicSubscriptionOne:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Protocol: email
+        TopicArn: !Ref ManualApprovalSnsTopic
+        Endpoint: raphael.jambalos@gmail.com
+
+plugins:
+  - serverless-offline

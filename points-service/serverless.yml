@@ -7,6 +7,13 @@ provider:
   name: aws
   runtime: python3.8
   lambdaHashingVersion: '20201221'
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action: "dynamodb:*"
+      Resource: "*"
+    - Effect: "Allow"
+      Action: "sns:*"
+      Resource: "*"
   environment:
     USERS_TABLE: ${self:provider.stage}-ecom-users-table
 
@@ -18,6 +25,7 @@ functions:
       - http:
           path: /users/{user_id}/points
           method: get
+
 
   awardPoints:
     handler: handlers/award_points.handler

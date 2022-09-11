@@ -45,3 +45,5 @@ order-service/node_modules/*
 .env.uat
 .dynamodb/*
 .idea/*
+
+hidden_readme.md

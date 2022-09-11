@@ -1,0 +1,46 @@
+service: order-service
+
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: python3.8
+  lambdaHashingVersion: '20201221'
+  stage: ${opt:stage, 'dev'}
+  environment:
+    ORDERS_TABLE: ${self:provider.stage}-ecom-orders-table
+
+functions:
+  markOrderAsDelivered:
+    handler: handlers/mark_order_as_delivered.handler
+    events:
+      - http:
+          path: /users/{user_id}/orders/{order_number}
+          method: post
+  
+  createOrder:
+    handler: handlers/create_order.handler
+    events:
+      - http:
+          path: /orders
+          method: post
+
+resources:
+  Resources:
+    OrdersTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: user_id
+            AttributeType: S
+          - AttributeName: order_number
+            AttributeType: S
+        KeySchema:
+          - AttributeName: user_id
+            KeyType: HASH
+          - AttributeName: order_number
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.ORDERS_TABLE}
+plugins:
+  - serverless-offline

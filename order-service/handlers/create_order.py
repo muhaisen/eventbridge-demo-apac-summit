@@ -12,7 +12,7 @@ def handler(event, context):
         
         order.save()
         
-        print("Creating an order")
+        print("Creating an order!!! <3 <3")
 
         return Response.success_json(
             {

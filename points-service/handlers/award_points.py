@@ -7,10 +7,19 @@ from models.user import User
 
 def handler(event, context):
     try:
-        body = json.loads(event['body'])
+        print("AND THE EVENT IS NOWWWW!!!!<3 <3")
+        print(event)
 
-        primary_key = {}
-        primary_key["user_id"] = event['pathParameters']['user_id']
+        if 'detail' in event:
+            body = event['detail']
+
+            primary_key = {}
+            primary_key["user_id"] = body['user_id']
+        else:
+            body = json.loads(event['body'])
+
+            primary_key = {}
+            primary_key["user_id"] = event['pathParameters']['user_id']
 
         user = User.create_if_not_exist(primary_key)
         user.award_points(body)

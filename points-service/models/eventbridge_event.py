@@ -2,7 +2,6 @@ import json
 import os
 
 from gateways.eventbridge_gateway import EventbridgeGateway
-from helpers.response import Response
 
 
 class EventbridgeEvent:
@@ -14,12 +13,10 @@ class EventbridgeEvent:
         self.event_body = event_body
 
     def serialize(self):
-        json_details = Response.construct_json_body(self.event_body)
-
         return {
             "Source": self.SOURCE_URL,
             "DetailType": self.event_name,
-            "Detail": json_details,
+            "Detail": json.dumps(self.event_body),
             "EventBusName": self.EVENT_BUS,
         }
 

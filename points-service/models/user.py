@@ -35,7 +35,7 @@ class User(DynamodbModelBase):
         print(points_for_order)
 
         self.data["orders"].append({
-            "order_id": body["order_id"],
+            "order_number": body["order_number"],
             "points": points_for_order
         })
 

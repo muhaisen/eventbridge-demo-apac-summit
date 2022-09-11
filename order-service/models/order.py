@@ -26,9 +26,16 @@ class Order(DynamodbModelBase):
             "user_id": self.data["user_id"],
             "status": self.data["status"]
         }
-    
+
+    def serialize_for_eventbridge(self):
+        return {
+            "order_number": self.data["order_number"],
+            "user_id": self.data["user_id"],
+            "total": self.data["total"]
+        }
+
     def send_order_delivered_event(self):
-        event = EventbridgeEvent("order_delivered", self.serialize())
+        event = EventbridgeEvent("order_delivered", self.serialize_for_eventbridge())
         event.send()
 
     @classmethod

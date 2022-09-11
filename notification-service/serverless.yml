@@ -15,8 +15,16 @@ provider:
     - Effect: "Allow"
       Action: "sns:*"
       Resource: "*"
+    - Effect: "Allow"
+      Action: "events:*"
+      Resource: "*"
   environment:
     SNS_TOPIC_ARN: { "Fn::Join" : ["", ["arn:aws:sns:${self:custom.region}:${self:custom.accountId}:${self:custom.alertDispatchTopic}" ] ]  }
+    ORDERS_TABLE: ${self:provider.stage}-ecom-orders-table
+    EVENT_SOURCE_NAME: ph.ecommerce.com
+    EVENT_BUS_NAME:  ${self:provider.stage}-ecom-event-bus
+    EVENT_BUS_ARN: arn:aws:events:${self:custom.region}:${self:custom.accountId}:event-bus/${self:provider.environment.EVENT_BUS_NAME}
+
 
 functions:
   sendEmailNotification:
@@ -25,6 +33,17 @@ functions:
       - http:
           path: /users/{user_id}/notifications
           method: post
+  
+  sendEmailNotificationEighth:
+    handler: handlers/send_email_notification.handler
+    events:
+      - eventBridge:
+          eventBus: ${self:provider.environment.EVENT_BUS_ARN}
+          pattern:
+            source:
+              - ${self:provider.environment.EVENT_SOURCE_NAME}
+            detail-type:
+              - order_delivered
 
 custom:
   stage: ${opt:stage, self:provider.stage}

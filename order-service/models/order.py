@@ -4,6 +4,7 @@ import string
 
 from helpers.exceptions import DataException, RequestException
 from models.dynamodb_model_base import DynamodbModelBase
+from models.eventbridge_event import EventbridgeEvent
 
 
 class Order(DynamodbModelBase):
@@ -25,6 +26,10 @@ class Order(DynamodbModelBase):
             "user_id": self.data["user_id"],
             "status": self.data["status"]
         }
+    
+    def send_order_delivered_event(self):
+        event = EventbridgeEvent("order_delivered", self.serialize())
+        event.send()
 
     @classmethod
     def generate_code(cls, prefix, string_length):

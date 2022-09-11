@@ -7,8 +7,17 @@ provider:
   runtime: python3.8
   lambdaHashingVersion: '20201221'
   stage: ${opt:stage, 'dev'}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action: "dynamodb:*"
+      Resource: "*"
+    - Effect: "Allow"
+      Action: "sns:*"
+      Resource: "*"
   environment:
     ORDERS_TABLE: ${self:provider.stage}-ecom-orders-table
+    EVENT_SOURCE_NAME: ph.ecommerce.com
+    EVENT_BUS_NAME:  ${self:provider.stage}-ecom-event-bus
 
 functions:
   markOrderAsDelivered:
@@ -27,6 +36,11 @@ functions:
 
 resources:
   Resources:
+    EcommerceEventBus:
+      Type: AWS::Events::EventBus
+      Properties: 
+        Name: ${self:provider.environment.EVENT_BUS_NAME}
+    
     OrdersTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
@@ -42,5 +56,7 @@ resources:
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.ORDERS_TABLE}
+    
+
 plugins:
   - serverless-offline

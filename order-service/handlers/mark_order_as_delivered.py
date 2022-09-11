@@ -17,6 +17,8 @@ def handler(event, context):
         order.mark_as_delivered()
         order.save()
 
+        order.send_order_delivered_event()
+
         return Response.success_json(
             {
                 "data": {

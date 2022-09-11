@@ -1,5 +1,11 @@
 # Order Service
 
+## Developing
+
+```sh
+serverless offline --region ap-southeast-1 --stage dev
+```
+
 ## Initial Project Setup
 
 ```sh
@@ -13,7 +19,9 @@ pip install pytz
 pip freeze > requirements.txt
 
 serverless deploy --region ap-southeast-1 --stage dev
-serverless plugin install -n serverless-offline^8.0.0
+serverless plugin install -n serverless-offline
+serverless plugin install -n serverless-python-requirements 
+
 ```
 
 
@@ -25,7 +33,6 @@ Create Order
 POST - /orders
 
 {
-  "order_number": "R101",
   "user_id": "U101",
   "amount": 1000,
   "items": [
@@ -39,7 +46,9 @@ Mark order as delivered
 
 ```json
 
-PATCH - users/{user_id}/orders/{orders_id}/deliver
+POST - users/{user_id}/orders/{orders_id}/deliver
 
-
+{
+  "delivered_at": "Sep 17, 2022 1:00PM GMT+7"
+}
 ```

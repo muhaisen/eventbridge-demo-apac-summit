@@ -11,12 +11,14 @@ def handler(event, context):
         order = Order.create(body)
         
         order.save()
+        
+        print("Creating an order")
 
         return Response.success_json(
             {
                 "data": {
                     "code": 200,
-                    "message": "order_is_delivered",
+                    "message": "order_is_created",
                     "status": "SUCCESS",
                     "data": order.serialize()
                 }
